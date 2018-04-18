@@ -12,8 +12,6 @@ import scipy as SP
 
 RD.seed()
 
-width = 12
-height = 12
 density = 0.8
 threshold = 0.7
 percent_unhappy = float('nan')
@@ -23,15 +21,20 @@ percent_similar = float('nan')
 time = 0
 
 
-def generate_initial_matrix():
+def generate_initial_matrix(width, height):
     """
     Schelling's segregation model (1971)
     """
 
+    matrix = SP.zeros([height, width])
     agents = list()
     empty = list()
+    color_cells(matrix, height, width, agents, empty)
 
-    matrix = SP.zeros([height, width])
+    return StepResult(matrix, agents, empty, 0, 0)
+
+
+def color_cells(matrix, height, width, agents, empty):
     for x in range(width):
         for y in range(height):
             if RD.random() < density:
@@ -42,8 +45,6 @@ def generate_initial_matrix():
                     matrix[y, x] = -1
             else:
                 empty.append((y, x))
-
-    return StepResult(matrix, agents, empty, 0, 0)
 
 
 def perform_step(step_result):
