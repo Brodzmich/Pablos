@@ -1,6 +1,9 @@
 import matplotlib
 from scipy import stats
 
+from Pablos import stepresult
+from Pablos.stepresult import StepResult
+
 matplotlib.use('TkAgg')
 
 import pylab as PL
@@ -16,14 +19,17 @@ threshold = 0.7
 percent_unhappy = float('nan')
 percent_similar = float('nan')
 
-agents = list()
-empty = list()
+
 time = 0
+
 
 def generate_initial_matrix():
     """
     Schelling's segregation model (1971)
     """
+
+    agents = list()
+    empty = list()
 
     matrix = SP.zeros([height, width])
     for x in range(width):
@@ -36,24 +42,25 @@ def generate_initial_matrix():
                     matrix[y, x] = -1
             else:
                 empty.append((y, x))
-    return matrix
+
+    return StepResult(matrix, agents, empty, 0, 0)
 
 
-def perform_step(matrix):
+def perform_step(step_result):
     global time
 
     time += 1
     percent_unhappy = 0
     percent_similar = 0.0
 
-    height, width = matrix.shape
+    height, width = step_result.matrix.shape
 
-    sequence = list(range(len(agents)))
+    sequence = list(range(len(step_result.agents)))
     RD.shuffle(sequence)
     for i in sequence:
-        agent = agents[i]
+        agent = step_result.agents[i]
         y, x = agent
-        state = matrix[y, x]
+        state = step_result.matrix[y, x]
         if state == 0:
             continue
         similar = 0
@@ -61,7 +68,7 @@ def perform_step(matrix):
         for dx in range(-1, 2):  # promień sąsiedztwa!!
             for dy in range(-1, 2):
                 if not ((dx == 0) and (dy == 0)):
-                    v = matrix[(y + dy) % height, (x + dx) % width]
+                    v = step_result.matrix[(y + dy) % height, (x + dx) % width]
                     if (v != 0):
                         total += 1
                     if (v == state):
@@ -72,13 +79,13 @@ def perform_step(matrix):
             percent_similar += similar / (1.0 * total)
         if (similar < threshold * total):
             percent_unhappy += 1
-            newpos = RD.randrange(len(empty))
-            new_y, new_x = empty[newpos]
-            matrix[new_y, new_x] = state
-            agents[i] = empty[newpos]
-            matrix[y, x] = 0
-            empty[newpos] = agent
-    percent_unhappy /= (1.0 * len(agents))
-    percent_similar /= (1.0 * len(agents))
+            newpos = RD.randrange(len(step_result.empty))
+            new_y, new_x = step_result.empty[newpos]
+            step_result.matrix[new_y, new_x] = state
+            step_result.agents[i] = step_result.empty[newpos]
+            step_result.matrix[y, x] = 0
+            step_result.empty[newpos] = agent
+    percent_unhappy /= (1.0 * len(step_result.agents))
+    percent_similar /= (1.0 * len(step_result.agents))
 
-    return matrix
+    return StepResult(step_result.matrix, step_result.agents, step_result.empty, percent_unhappy, percent_similar)
