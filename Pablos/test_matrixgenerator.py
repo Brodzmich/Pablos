@@ -36,3 +36,10 @@ class TestMatrixGenerator(TestCase):
 
         self.assertEqual(40, red_squares)
         self.assertEqual(40, blue_squares)
+
+    def test_desired_number_of_agents(self):
+        desired_number = matrixgenerator.get_desired_num_of_agents(0.8,10,10)
+        self.assertEqual(80, desired_number)
+
+        desired_number = matrixgenerator.get_desired_num_of_agents(0.8, 3, 3)
+        self.assertEqual(7, desired_number)

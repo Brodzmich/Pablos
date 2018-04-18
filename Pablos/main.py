@@ -4,4 +4,4 @@ from Pablos import algorithmrunner
 
 print("simmilar          unhappy")
 for i in range(100):
-    algorithmrunner.run_algorithm(200, 50, 50)
+    algorithmrunner.run_algorithm(100, 50, 50)

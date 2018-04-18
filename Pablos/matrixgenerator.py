@@ -1,12 +1,9 @@
 import matplotlib
-from scipy import stats
 
-from Pablos import stepresult
 from Pablos.stepresult import StepResult
 
 matplotlib.use('TkAgg')
-
-import pylab as PL
+import math
 import random as RD
 import scipy as SP
 
@@ -16,7 +13,6 @@ density = 0.8
 threshold = 0.7
 percent_unhappy = float('nan')
 percent_similar = float('nan')
-
 
 time = 0
 
@@ -35,16 +31,39 @@ def generate_initial_matrix(width, height):
 
 
 def color_cells(matrix, height, width, agents, empty):
+    empty_cells = get_empty_cell_list(width, height)
+
+    desired_num_of_agents = get_desired_num_of_agents(density, width, height)
+    for agent_id in range(desired_num_of_agents):
+        x, y = RD.choice(empty_cells)
+        agents.append((y, x))
+        empty_cells.remove((x, y))
+
+    not_colored_agents = list(agents)
+
+    red_agents = RD.sample(not_colored_agents, int(math.floor(len(not_colored_agents) / 2)))
+    blue_agents = [x for x in not_colored_agents if x not in red_agents]
+
+    for x, y in red_agents:
+        matrix[y, x] = 1
+
+    for x, y in blue_agents:
+        matrix[y, x] = -1
+
+    for x, y in empty_cells:
+        empty.append((x, y))
+
+
+def get_empty_cell_list(width, height):
+    cell_list = list()
     for x in range(width):
         for y in range(height):
-            if RD.random() < density:
-                agents.append((y, x))
-                if RD.random() < 0.5:  # stosunek <0,5 czerwonych wiecej
-                    matrix[y, x] = 1  # kolory
-                else:
-                    matrix[y, x] = -1
-            else:
-                empty.append((y, x))
+            cell_list.append((x, y))
+    return cell_list
+
+
+def get_desired_num_of_agents(density, width, height):
+    return int(math.floor(density * (width * height)))
 
 
 def perform_step(step_result):
