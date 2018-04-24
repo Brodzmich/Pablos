@@ -1,30 +1,39 @@
-from Pablos import matrixgenerator
-
 import random
 
-def run_algorithm(number_of_steps, width, height, vision):
+from Pablos import matrixgenerator
 
+
+def run_algorithm(number_of_steps, width, height, vision=1, threshold=0.5):
     step_result = matrixgenerator.generate_initial_matrix(width, height)
 
     for i in range(1, number_of_steps + 1):
-        step_result = perform_step(step_result, vision)
+        step_result = perform_step(step_result.matrix, vision, threshold)
 
     return step_result
 
-def perform_step(step_result, vision):
-    global time
 
-    time += 1
-    percent_unhappy = 0
-    percent_similar = 0.0
+def get_neighbors_of_agent(matrix, agent, vision):
+    neighbors = list()
+    for dx in range(0 - vision, vision + 1):
+        for dy in range(0 - vision, vision + 1):
+            if not ((dx == 0) and (dy == 0)):
+                width, height = matrix.get_size()
+                neighbors.append(matrix.cells[(agent.x + dx) % width][(agent.y + dy) % height])
+    return neighbors
 
-    matrix = step_result.matrix
+
+def agent_satisfied(matrix, agent, vison, threshold):
+   neighbors = get_neighbors_of_agent(matrix, agent, vison)
+
+
+
+def perform_step(matrix, vision, threshold):
     agents = list(matrix.get_agents())
 
     random.shuffle(agents)
 
-    # for agent in agents:
-    #     if agent_satisfied(agent)
+    for agent in agents:
+        agent_satisfied(matrix, agent, vision, threshold)
 
     #     similar = 0
     #     total = 0

@@ -55,6 +55,10 @@ class Cell:
 
         return False
 
+
 class Agent:
+
     def __init__(self, color=Colors.White):
         self.color = color
+        self.x = None
+        self.y = None
