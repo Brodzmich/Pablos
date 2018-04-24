@@ -1,3 +1,6 @@
+from Pablos.colors import Colors
+
+
 class Matrix:
     def __init__(self, cells):
         self.cells = cells
@@ -51,3 +54,7 @@ class Cell:
             return True
 
         return False
+
+class Agent:
+    def __init__(self, color=Colors.White):
+        self.color = color
