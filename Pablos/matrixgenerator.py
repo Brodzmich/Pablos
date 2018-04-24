@@ -1,11 +1,13 @@
 import matplotlib
 
+from Pablos.agent import Agent
+from Pablos.colors import Colors
+from Pablos.matrix import *
 from Pablos.stepresult import StepResult
 
 matplotlib.use('TkAgg')
 import math
 import random as RD
-import scipy as SP
 
 RD.seed()
 
@@ -21,48 +23,36 @@ def generate_initial_matrix(width, height):
     """
     Schelling's segregation model (1971)
     """
+    matrix = Matrix.zero_matrix(width, height)
 
-    matrix = SP.zeros([height, width])
-    agents = list()
-    empty = list()
-    color_cells(matrix, height, width, agents, empty)
+    deploy_agents(matrix)
 
-    return StepResult(matrix, agents, empty, 0, 0)
+    return StepResult(matrix, 0, 0)
 
 
-def color_cells(matrix, height, width, agents, empty):
-    empty_cells = get_empty_cell_list(width, height)
+def deploy_agents(matrix):
+    empty_cells = matrix.get_empty_cells()
 
-    desired_num_of_agents = get_desired_num_of_agents(density, width, height)
+    desired_num_of_agents = get_desired_num_of_agents(density, matrix)
+
     for agent_id in range(desired_num_of_agents):
-        x, y = RD.choice(empty_cells)
-        agents.append((y, x))
-        empty_cells.remove((x, y))
+        cell = RD.choice(empty_cells)
+        cell.set_agent(Agent())
+        empty_cells.remove(cell)
 
-    not_colored_agents = list(agents)
+    not_colored_agents = matrix.get_agents()
 
     red_agents = RD.sample(not_colored_agents, int(math.floor(len(not_colored_agents) / 2)))
+    for agent in red_agents:
+        agent.color = Colors.Red
+
     blue_agents = [x for x in not_colored_agents if x not in red_agents]
-
-    for x, y in red_agents:
-        matrix[y, x] = 1
-
-    for x, y in blue_agents:
-        matrix[y, x] = -1
-
-    for x, y in empty_cells:
-        empty.append((x, y))
+    for agent in blue_agents:
+        agent.color = Colors.Blue
 
 
-def get_empty_cell_list(width, height):
-    cell_list = list()
-    for x in range(width):
-        for y in range(height):
-            cell_list.append((x, y))
-    return cell_list
-
-
-def get_desired_num_of_agents(density, width, height):
+def get_desired_num_of_agents(density, matrix):
+    width, height = matrix.get_size()
     return int(math.floor(density * (width * height)))
 
 
